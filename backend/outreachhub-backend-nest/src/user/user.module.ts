@@ -30,5 +30,6 @@ import { Token, TokenSchema } from 'src/common/token.schema';
   ],
   controllers: [UserController],
   providers: [UserService],
+  exports: [UserService],
 })
 export class UserModule {}

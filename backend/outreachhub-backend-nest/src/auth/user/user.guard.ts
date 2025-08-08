@@ -35,6 +35,7 @@ export class UserGuard implements CanActivate {
         userId: decode.userId,
       });
       if (tokenExists && tokenExists.token === token) {
+        req['data'] = decode;
         return true;
       }
       throw new HttpException('Token not found', HttpStatus.UNAUTHORIZED);

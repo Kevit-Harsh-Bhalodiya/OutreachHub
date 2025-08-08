@@ -6,6 +6,8 @@ import { Token, TokenSchema } from 'src/common/token.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { UserModule } from 'src/user/user.module';
+import { AdminModule } from 'src/admin/admin.module';
 
 @Module({
   imports: [
@@ -27,6 +29,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       inject: [ConfigService],
       imports: [ConfigModule],
     }),
+    UserModule,
+    AdminModule,
   ],
   controllers: [WorkspaceController],
   providers: [WorkspaceService],

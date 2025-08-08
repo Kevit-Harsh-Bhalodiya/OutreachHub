@@ -25,7 +25,7 @@ import { WorkspaceModule } from './workspace/workspace.module';
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_KEY'),
         signOptions: {
-          expiresIn: '1h', // Token expiration time
+          expiresIn: '1h',
         },
       }),
     }),

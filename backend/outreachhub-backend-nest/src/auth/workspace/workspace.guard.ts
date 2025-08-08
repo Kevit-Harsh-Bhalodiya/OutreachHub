@@ -6,6 +6,8 @@ export class WorkspaceGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
+    const request = context.switchToHttp().getRequest();
+    // request['data'] = decode;
     return true;
   }
 }

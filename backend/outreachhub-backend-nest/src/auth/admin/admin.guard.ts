@@ -14,7 +14,6 @@ import { Token } from 'src/common/token.schema';
 @Injectable()
 export class AdminGuard implements CanActivate {
   constructor(
-    private adminService: AdminService,
     private jwtService: JwtService,
     @InjectModel(Token.name) private tokenModel: Model<Token>,
   ) {}
@@ -35,6 +34,7 @@ export class AdminGuard implements CanActivate {
         adminId: decode.adminId,
       });
       if (tokenExists && tokenExists.token === token) {
+        request['data'] = decode;
         return true;
       }
       throw new HttpException('Token not found', HttpStatus.UNAUTHORIZED);
