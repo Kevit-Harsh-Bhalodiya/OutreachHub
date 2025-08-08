@@ -5,10 +5,9 @@
 /backend/OutreachHub-backend/.vscode
 
 /backend/outreachhub-backend-nest/.env
+/backend/outreachhub-backend-nest/node_modules
 /backend/outreachhub-backend-nest/dist
 /backend/outreachhub-backend-nest/package-lock.json
 /backend/outreachhub-backend-nest/logs
 /backend/outreachhub-backend-nest/.vscode
-
 **/node_modules/
-
