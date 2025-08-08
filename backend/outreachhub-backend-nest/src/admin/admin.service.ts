@@ -5,8 +5,8 @@ import { Model } from 'mongoose';
 import { AdminAuthDto } from 'src/auth/admin/adminAuth.dto';
 import bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-import { Token } from 'src/auth/admin/token.schema';
 import { AdminDto } from './admin.dto';
+import { Token } from 'src/common/token.schema';
 
 @Injectable()
 export class AdminService {

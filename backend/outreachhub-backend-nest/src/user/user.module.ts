@@ -1,18 +1,18 @@
 import { Module } from '@nestjs/common';
-import { AdminService } from './admin.service';
-import { AdminController } from './admin.controller';
-import { Admin, AdminSchema } from './admin.schema';
-import { MongooseModule } from '@nestjs/mongoose';
+import { UserController } from './user.controller';
+import { UserService } from './user.service';
+import { User, UserSchema } from './user.schema';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
 import { Token, TokenSchema } from 'src/common/token.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       {
-        name: Admin.name,
-        schema: AdminSchema,
+        name: User.name,
+        schema: UserSchema,
       },
       {
         name: Token.name,
@@ -28,7 +28,7 @@ import { Token, TokenSchema } from 'src/common/token.schema';
       imports: [ConfigModule],
     }),
   ],
-  providers: [AdminService],
-  controllers: [AdminController],
+  controllers: [UserController],
+  providers: [UserService],
 })
-export class AdminModule {}
+export class UserModule {}
