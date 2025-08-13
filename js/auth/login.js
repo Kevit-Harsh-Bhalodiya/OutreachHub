@@ -1,34 +1,39 @@
+"use strict";
 const loginForm = document.getElementById("login-form");
 const authAPI = "https://6874d57add06792b9c95705b.mockapi.io/api/v1/login";
-
-loginForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  console.log("Login form submitted");
-  const formData = new FormData(loginForm);
-  const data = Object.fromEntries(formData.entries());
-  console.log("Form data:", data);
-  try {
-    const response = await fetch(authAPI).then((res) => res.json());
-    console.log("Response from API:", response);
-    const user = response.find(
-      (user) =>
-        user.username === data.username && user.password === data.password,
-    );
-    if (user) {
-      localStorage.setItem("OutreachHub-user", JSON.stringify(user));
-      window.location.href = "../pages/home.html";
-    } else {
-      alert("Invalid username or password");
-    }
-  } catch (e) {
-    console.log("Error in login form submission:", e);
-  }
-});
+if (loginForm) {
+    loginForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const formData = new FormData(loginForm);
+        const data = Object.fromEntries(formData.entries());
+        try {
+            const response = await fetch(authAPI).then((res) => res.json());
+            const user = response.find((u) => u.username === data.username && u.password === data.password);
+            if (user) {
+                localStorage.setItem("OutreachHub-user", JSON.stringify(user));
+                window.location.href = "../pages/home.html";
+            }
+            else {
+                alert("Invalid username or password");
+            }
+        }
+        catch (e) {
+            console.error("Error in login form submission:", e);
+        }
+    });
+}
 const checkLocalStorage = () => {
-  let user = localStorage.getItem("OutreachHub-user");
-  user = JSON.parse(user);
-  if (user) {
-    window.location.href = "../pages/home.html";
-  }
+    const userStr = localStorage.getItem("OutreachHub-user");
+    if (!userStr)
+        return;
+    try {
+        const user = JSON.parse(userStr);
+        if (user) {
+            window.location.href = "../pages/home.html";
+        }
+    }
+    catch (e) {
+        console.error("Failed to parse user from localStorage:", e);
+    }
 };
 checkLocalStorage();
