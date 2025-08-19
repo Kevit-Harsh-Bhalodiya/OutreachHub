@@ -1,11 +1,17 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from './common/auth/auth.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { AdminModule } from './admin/admin.module';
+import { WorkspaceModule } from './workspace/workspace.module';
+import { UserModule } from './user/user.module';
+import { MessageTemplateModule } from './message-template/message-template.module';
+import { ContactModule } from './contact/contact.module';
+import { CampaignModule } from './campaign/campaign.module';
+import { CampaignMessageModule } from './campaign-message/campaign-message.module';
+import { AwsS3Module } from './aws-s3/aws-s3.module';
 
 @Module({
   imports: [
@@ -30,8 +36,14 @@ import { ScheduleModule } from '@nestjs/schedule';
       }),
     }),
     AuthModule,
+    AdminModule,
+    WorkspaceModule,
+    UserModule,
+    MessageTemplateModule,
+    ContactModule,
+    CampaignModule,
+    CampaignMessageModule,
+    AwsS3Module,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}
