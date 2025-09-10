@@ -15,10 +15,16 @@ import { AuthGuard } from 'src/common/auth/guards/auth.guard';
 import { AdminOrUserGuard } from 'src/common/auth/guards/admin-or-user.guard';
 import { WriteGuard } from 'src/common/auth/guards/write.guard';
 import { UserGuard } from 'src/common/auth/guards/user.guard';
+import { AdminGuard } from 'src/common/auth/guards/admin.guard';
 
 @Controller('campaign')
 export class CampaignController {
   constructor(private campaignService: CampaignService) {}
+  @Get('admin')
+  @UseGuards(AuthGuard, AdminGuard)
+  getAllCampaignsAdmin() {
+    return this.campaignService.getAllCampaignsAdmin();
+  }
   @Get()
   @UseGuards(AuthGuard, UserGuard)
   getAllCampaigns(@Req() req: any) {
@@ -36,6 +42,7 @@ export class CampaignController {
   getAllCampaignStatus() {
     return this.campaignService.getAllCampaignStatus();
   }
+  
   @Get(':campaignId/contacts')
   @UseGuards(AuthGuard, AdminOrUserGuard)
   getContactsByCampaignTag(@Param('campaignId') campaignId: string) {

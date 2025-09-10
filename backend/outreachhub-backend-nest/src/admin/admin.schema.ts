@@ -19,5 +19,10 @@ export class Admin {
   createdAt: Date;
   @Prop({ type: Boolean, default: false })
   isDeleted?: boolean;
+  @Prop({
+    type: String,
+    default: "https://www.w3schools.com/howto/img_avatar.png",
+  })
+  profilePicture?: string;
 }
 export const AdminSchema = SchemaFactory.createForClass(Admin);

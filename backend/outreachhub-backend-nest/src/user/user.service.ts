@@ -13,6 +13,16 @@ export class UserService {
     private workspaceUserModel: Model<WorkspaceUser>,
   ) {}
 
+  async getAllUsers(): Promise<any[]> {
+    const users = await this.userModel
+      .find({ isDeleted: false }, { password: 0 })
+      .lean()
+      .exec();
+    if (!users) {
+      throw new HttpException('No Users Found', HttpStatus.NOT_FOUND);
+    }
+    return users;
+  }
   async getUserById(userId: string): Promise<any> {
     const user = await this.userModel
       .findOne({ _id: userId, isDeleted: false })
@@ -42,7 +52,7 @@ export class UserService {
   ): Promise<WorkspaceUser | { message: string; error: any }> {
     try {
       const user = await this.getUserById(userId);
-      console.log(user)
+      console.log(user);
       if (!user || user.isDeleted) {
         throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
       }
@@ -90,6 +100,7 @@ export class UserService {
       )
       .lean()
       .exec();
+    console.log(updatedUser);
     if (!updatedUser) {
       throw new Error('Failed to update user with current workspace');
     }
@@ -108,5 +119,48 @@ export class UserService {
     return {
       message: 'User deleted successfully',
     };
+  }
+  async getAllUsersAccToWorkspace(workspacesId: string[]): Promise<any> {
+    const users = await this.workspaceUserModel
+      .find(
+        {
+          workspaceId: { $in: workspacesId },
+          isDeleted: false,
+        },
+        { userId: 1, workspaceId: 1, _id: 0 },
+      )
+      .lean()
+      .exec();
+    if (!users) {
+      throw new HttpException('No users found', HttpStatus.NOT_FOUND);
+    }
+    return users;
+  }
+  async updateUser(userId: string, updateData: any): Promise<any> {
+    try {
+      const user = await this.getUserById(userId);
+      if (!user) {
+        throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
+      }
+      if (updateData.password) {
+        updateData.password = await bcrypt.hash(updateData.password, 10);
+      }
+      const updatedUser = await this.userModel
+        .findByIdAndUpdate(userId, { $set: updateData }, { new: true })
+        .lean()
+        .exec();
+      if (!updatedUser) {
+        throw new HttpException(
+          'Error updating user',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+      return updatedUser;
+    } catch (err) {
+      return {
+        message: 'Error updating user',
+        error: err,
+      };
+    }
   }
 }

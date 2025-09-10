@@ -15,28 +15,24 @@ export class WorkspaceMembershipService {
     body: any,
   ): Promise<WorkspaceUser | { message: string; error?: any }> {
     await this.userService.getUserById(body.memberId);
-    console.log('a');
 
     const checkUserExists = await this.workspaceUser.findOne({
       workspaceId: body.workspaceId,
       userId: body.memberId,
       isDeleted: false,
     });
-    console.log('b');
     if (checkUserExists) {
       throw new HttpException(
         'User already exists in this workspace',
         HttpStatus.BAD_REQUEST,
       );
     }
-    console.log('c');
     const response = await this.userService.addUserToWorkspace(
       body.workspaceId,
       body.permissions.write,
       body.permissions.allowAdd,
       body.memberId,
     );
-    console.log('d');
     return response;
   }
   async deleteMemberFromWorkspace(
@@ -64,13 +60,10 @@ export class WorkspaceMembershipService {
     };
   }
   async getAllWorkspaceByUserId(
-    req: any,
-    body: any,
+    userId: string,
   ): Promise<WorkspaceUser[] | { message: string; error: any }> {
     try {
-      const user = await this.userService.getUserById(
-        req.user.userId || body.userId,
-      );
+      const user = await this.userService.getUserById(userId);
       const workspaces = await this.workspaceUser
         .find({
           userId: user._id,

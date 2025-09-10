@@ -8,6 +8,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -26,7 +27,7 @@ export class UserController {
     private authService: AuthService,
   ) {}
 
-  @Post('createUser')
+  @Post('create')
   @UseGuards(AuthGuard, AdminGuard)
   async createUser(@Body() body: any): Promise<any> {
     try {
@@ -50,6 +51,30 @@ export class UserController {
         'Failed to logout User',
         HttpStatus.METHOD_NOT_ALLOWED,
       );
+    }
+  }
+  @Get('admin')
+  @UseGuards(AuthGuard, AdminGuard)
+  async getAllUsers() {
+    try {
+      const users = await this.userService.getAllUsers();
+      return users;
+    } catch (err) {
+      throw new HttpException(err.message, err.status);
+    }
+  }
+
+  @Put('update/:userId')
+  @UseGuards(AuthGuard, AdminGuard)
+  async updateUser(
+    @Param('userId') userId: string,
+    @Body() body,
+  ): Promise<any> {
+    try {
+      const updatedUser = await this.userService.updateUser(userId, body);
+      return updatedUser;
+    } catch (err) {
+      throw new HttpException(err.message, err.status);
     }
   }
   @Delete(':userId')

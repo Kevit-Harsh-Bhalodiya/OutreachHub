@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import mongoose from 'mongoose';
 
 export class MessageTemplateDto {
@@ -13,6 +13,7 @@ export class MessageTemplateDto {
   @IsString()
   title: string;
   @IsString()
+  @IsOptional()
   templateImage?: string;
   @IsString()
   template: string;

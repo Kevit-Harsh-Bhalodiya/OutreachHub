@@ -16,6 +16,7 @@ import { AdminOrUserGuard } from 'src/common/auth/guards/admin-or-user.guard';
 import { WriteGuard } from 'src/common/auth/guards/write.guard';
 import { WorkspaceService } from 'src/workspace/workspace.service';
 import { UserService } from 'src/user/user.service';
+import { AdminGuard } from 'src/common/auth/guards/admin.guard';
 
 @Controller('contact')
 export class ContactController {
@@ -24,6 +25,15 @@ export class ContactController {
     private workspaceService: WorkspaceService,
     private userService: UserService,
   ) {}
+  @Get('admin')
+  @UseGuards(AuthGuard, AdminGuard)
+  async getAllContacts() {
+    const contacts = await this.contactService.getAllContacts();
+    if (!contacts) {
+      throw new Error('No contacts found');
+    }
+    return contacts;
+  }
   @Get()
   @UseGuards(AuthGuard, AdminOrUserGuard)
   async getAllContactsByWorkspace(@Req() req: any, @Body() body: any) {
@@ -55,6 +65,18 @@ export class ContactController {
       throw new Error('No contacts found for this user');
     }
     return contacts;
+  }
+  @Get('/:contactId')
+  @UseGuards(AuthGuard, AdminOrUserGuard)
+  async getContactById(@Param('contactId') contactId: string) {
+    if (!contactId) {
+      throw new Error('Contact ID is required');
+    }
+    const contact = await this.contactService.getContactById(contactId);
+    if (!contact) {
+      throw new Error('Contact not found');
+    }
+    return contact;
   }
   @Post()
   @UseGuards(AuthGuard, AdminOrUserGuard, WriteGuard)

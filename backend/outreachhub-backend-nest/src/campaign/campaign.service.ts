@@ -18,13 +18,21 @@ export class CampaignService {
     private campaignMessageService: CampaignMessageService,
     private messageTemplateService: MessageTemplateService,
     private userService: UserService,
-  ) {}
+  ) { }
+  async getAllCampaignsAdmin(): Promise<Campaign[]> {
+    const campaigns = await this.campaignModel.find().lean().exec();
+    if (!campaigns) {
+      throw new Error('No campaigns found');
+    }
+    return campaigns;
+  }
   async getAllCampaigns(userId: string): Promise<Campaign[]> {
     const workspaceId = (
       await this.userService.getUserById(userId)
     ).currentWorkspace.toString();
     const campaigns = await this.campaignModel
-      .find({ workspaceId })
+      .find({ workspaceId, isDeleted: false })
+      .populate('creator', 'name')
       .lean()
       .exec();
     if (!campaigns) {
@@ -101,7 +109,7 @@ export class CampaignService {
     const updatedCampaign = await this.campaignModel
       .findByIdAndUpdate(
         campaignId,
-        { campaignData, lastModifiedBy: userId },
+        { ...campaignData, lastModifiedBy: userId },
         { new: true },
       )
       .lean()
@@ -202,6 +210,18 @@ export class CampaignService {
       );
     }
     return createdData;
+  }
+  async getAllCampaignsAccToWorkspace(
+    workspacesId: string[],
+  ): Promise<Campaign[]> {
+    const campaigns = await this.campaignModel
+      .find({ workspaceId: { $in: workspacesId } }, { workspaceId: 1, _id: 1 })
+      .lean()
+      .exec();
+    if (!campaigns) {
+      throw new Error('No campaigns found for the given workspaces');
+    }
+    return campaigns;
   }
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async autoLaunchCampaign() {

@@ -21,7 +21,10 @@ export class WorkspaceService {
     req: any,
   ): Promise<Workspace[] | { message: string; error: any }> {
     try {
-      const workspace = await this.workspaceModel.find().lean().exec();
+      const workspace = await this.workspaceModel
+        .find({ isDeleted: false })
+        .lean()
+        .exec();
       return workspace;
     } catch (err) {
       return {
@@ -97,12 +100,11 @@ export class WorkspaceService {
     return updatedWorkspace;
   }
   async updateWorkspace(
-    req: any,
+    workspaceId: string,
     body: any,
   ): Promise<Workspace | { message: string; error: any }> {
     try {
-      const workspaceId = body.workspaceId;
-      const updateData = body.updateData;
+      const updateData = body;
       const workspace = await this.getWorkspaceById(workspaceId);
       if (!workspace) {
         throw new HttpException('Workspace Not Found', HttpStatus.NOT_FOUND);

@@ -8,6 +8,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { Token, TokenSchema } from 'src/common/schema/token.schema';
 import { UserModule } from 'src/user/user.module';
+import { CampaignModule } from 'src/campaign/campaign.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { UserModule } from 'src/user/user.module';
     ]),
     forwardRef(() => AuthModule),
     forwardRef(() => UserModule),
+    forwardRef(() => CampaignModule),
     JwtModule.registerAsync({
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('jwt_key'),
@@ -33,4 +35,4 @@ import { UserModule } from 'src/user/user.module';
   providers: [AdminService],
   exports: [AdminService],
 })
-export class AdminModule {}
+export class AdminModule { }

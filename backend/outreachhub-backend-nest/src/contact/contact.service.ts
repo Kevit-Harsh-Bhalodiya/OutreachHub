@@ -8,12 +8,38 @@ import { UserService } from 'src/user/user.service';
 export class ContactService {
   constructor(
     @InjectModel(Contact.name) private contactModel: Model<Contact>,
-  ) {}
+  ) { }
+  async getAllContacts(): Promise<Contact[]> {
+    const contacts = await this.contactModel
+      .find({ isDeleted: false })
+      .lean()
+      .exec();
+    if (!contacts) {
+      throw new Error('No contacts found');
+    }
+    return contacts;
+  }
+  async getContactById(contactId: string): Promise<any> {
+    if (!contactId) {
+      throw new Error('Contact ID is required');
+    }
+    const contact = await this.contactModel
+      .find({ _id: contactId, isDeleted: false })
+      .lean()
+      .exec();
+    if (!contact) {
+      throw new Error('Contact not found');
+    }
+    return contact;
+  }
   async getAllContactsByWorkspace(workspaceId: string): Promise<Contact[]> {
     if (!workspaceId) {
       throw new Error('Workspace ID is required');
     }
-    return await this.contactModel.find({ workspaceId }).lean().exec();
+    return await this.contactModel
+      .find({ workspaceId, isDeleted: false })
+      .lean()
+      .exec();
   }
   async getAllContactsByUser(userId: string): Promise<Contact[]> {
     return await this.contactModel.find({ creator: userId }).lean().exec();

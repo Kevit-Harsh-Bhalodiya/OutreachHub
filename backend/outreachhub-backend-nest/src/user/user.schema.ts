@@ -22,5 +22,10 @@ export class User {
   isDeleted: boolean;
   @Prop({ type: mongoose.Schema.Types.ObjectId })
   currentWorkspace?: mongoose.Schema.Types.ObjectId;
+  @Prop({
+    type: String,
+    default: "https://www.w3schools.com/howto/img_avatar.png",
+  })
+  profilePicture?: string;
 }
 export const UserSchema = SchemaFactory.createForClass(User);

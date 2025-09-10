@@ -41,5 +41,6 @@ import { Token, TokenSchema } from 'src/common/schema/token.schema';
   ],
   controllers: [CampaignController],
   providers: [CampaignService],
+  exports: [CampaignService],
 })
 export class CampaignModule {}

@@ -10,11 +10,17 @@ import { AdminLoginDto } from '../dtos/adminLogin.dto';
 import { UserService } from 'src/user/user.service';
 import { UserLoginDto } from '../dtos/userLogin.dto';
 import { User } from 'src/user/user.schema';
+import {
+  WorkspaceUser,
+  WorkspaceUserSchema,
+} from 'src/workspaceUser/workspaceUser.schema';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(Token.name) private tokenModel: Model<Token>,
+    @InjectModel(WorkspaceUser.name)
+    private workspaceUserModel: Model<WorkspaceUser>,
     private jwtService: JwtService,
     private adminService: AdminService,
     private userService: UserService,
@@ -60,6 +66,12 @@ export class AuthService {
       }
       return {
         token,
+        isAdmin: true,
+        name: admin.name,
+        email: admin.contactInfo.email,
+        profilePicture:
+          admin.profilePicture ??
+          'https://www.w3schools.com/howto/img_avatar.png',
         message: 'Auth Successful',
       };
     }
@@ -109,6 +121,10 @@ export class AuthService {
         userId: user._id,
         isAdmin: false,
       };
+      const permissions = await this.workspaceUserModel.findOne({
+        userId: user._id,
+        isDeleted: false,
+      });
       token = this.jwtService.sign(payload, { expiresIn: '1h' });
       const newToken = {
         token: token,
@@ -126,6 +142,14 @@ export class AuthService {
       }
       return {
         token,
+        userId: user._id,
+        permissions: permissions,
+        name: user.name,
+        email: user.contactInfo.email,
+        profilePicture:
+          user.profilePicture ??
+          'https://www.w3schools.com/howto/img_avatar.png',
+        isAdmin: false,
         message: 'Auth Successful',
       };
     }

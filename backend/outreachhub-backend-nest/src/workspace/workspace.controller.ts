@@ -24,6 +24,19 @@ export class WorkspaceController {
     private workspaceService: WorkspaceService,
     private workspaceMembershipService: WorkspaceMembershipService,
   ) {}
+  @Post('/setCurrentWorkspace')
+  @UseGuards(AuthGuard, UserGuard)
+  async setCurrentWorkspace(
+    @Req() req: any,
+    @Body() body: { workspaceId: string },
+  ) {
+    console.log('hello');
+    const response = await this.workspaceService.setCurrentWorkspace(
+      req.user.userId,
+      body.workspaceId,
+    );
+    return response;
+  }
   @Get('/getUsers/:workspaceId') //done
   @UseGuards(AuthGuard, AdminOrUserGuard)
   async getUsersByWorkspaceId(
@@ -43,11 +56,11 @@ export class WorkspaceController {
     return workspaces;
   }
 
-  @Get('/user')
+  @Get('/user/:userId')
   @UseGuards(AuthGuard, AdminOrUserGuard)
-  async getAllWorkspacesByUserId(@Req() req: any, @Body() body: any) {
+  async getAllWorkspacesByUserId(@Param('userId') userId: string) {
     const workspaces =
-      await this.workspaceMembershipService.getAllWorkspaceByUserId(req, body);
+      await this.workspaceMembershipService.getAllWorkspaceByUserId(userId);
     return workspaces;
   }
   @Get('/:workspaceId') //done
@@ -81,34 +94,43 @@ export class WorkspaceController {
     return updatedWorkspace;
   }
 
-  @Patch('/updateWorkspace')
+  @Patch('/:workspaceId')
   @UseGuards(AuthGuard, AdminGuard)
-  async updateWorkspace(@Req() req: any, @Body() body: any) {
+  async updateWorkspace(
+    @Param('workspaceId') workspaceId: string,
+    @Body() body: any,
+  ) {
     const updatedWorkspace = await this.workspaceService.updateWorkspace(
-      req,
+      workspaceId,
       body,
     );
     return updatedWorkspace;
   }
 
-  @Delete('/deleteMember')
+  @Delete('/deleteMember/:workspaceId/:userId')
   @UseGuards(AuthGuard, AllowAddGuard)
-  async deleteMemberFromWorkspace(@Req() req: any, @Body() body: any) {
+  async deleteMemberFromWorkspace(
+    @Req() req: any,
+    @Param('workspaceId') workspaceId: string,
+    @Param('userId') memberId: string,
+  ) {
     const updatedWorkspace =
       await this.workspaceMembershipService.deleteMemberFromWorkspace(
         req,
-        body.memberId,
-        body.workspaceId,
+        memberId,
+        workspaceId,
       );
     return updatedWorkspace;
   }
-
-  @Delete('/delete')
+  @Delete('/delete/:workspaceId')
   @UseGuards(AuthGuard, AdminGuard)
-  async deleteWorkspace(@Req() req: any, @Body() body: any) {
+  async deleteWorkspace(
+    @Req() req: any,
+    @Param('workspaceId') workspaceId: string,
+  ) {
     const deletedWorkspace = await this.workspaceService.deleteWorkspace(
       req,
-      body.workspaceId,
+      workspaceId,
     );
     return deletedWorkspace;
   }
@@ -123,16 +145,4 @@ export class WorkspaceController {
     return res;
   }
 
-  @Post('/setCurrentWorkspace')
-  @UseGuards(AuthGuard, UserGuard)
-  async setCurrentWorkspace(
-    @Req() req: any,
-    @Body() body: { workspaceId: string },
-  ) {
-    const response = await this.workspaceService.setCurrentWorkspace(
-      req.user.userId,
-      body.workspaceId,
-    );
-    return response;
-  }
 }
