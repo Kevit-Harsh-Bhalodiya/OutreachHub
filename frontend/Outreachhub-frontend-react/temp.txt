@@ -1,0 +1,10 @@
+[
+  {
+    userId:xyz,
+    permissions:{read:bool,write,bool}
+    },
+  {
+    userId:abc,
+    permissions:{read:bool,write,bool}
+    }
+]
