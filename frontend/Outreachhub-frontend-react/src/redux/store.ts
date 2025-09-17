@@ -21,7 +21,7 @@ import campaignReducer from './slices/campaignSlice';
 import contactReducer from './slices/contactSlice';
 import adminReducer from './slices/adminSlice';
 import messageTemplateReducer from './slices/messageTemplateSlice';
-
+import workspaceUserReducer from './slices/workspaceUserSlice';
 const rootReducer = combineReducers({
   theme: themeReducer,
   ui: uiReducer,
@@ -33,6 +33,7 @@ const rootReducer = combineReducers({
   contact: contactReducer,
   admin: adminReducer,
   messageTemplate: messageTemplateReducer,
+  workspaceUser: workspaceUserReducer,
 });
 
 const persistConfig = {
