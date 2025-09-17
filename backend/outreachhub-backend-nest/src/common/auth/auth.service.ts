@@ -10,10 +10,7 @@ import { AdminLoginDto } from '../dtos/adminLogin.dto';
 import { UserService } from 'src/user/user.service';
 import { UserLoginDto } from '../dtos/userLogin.dto';
 import { User } from 'src/user/user.schema';
-import {
-  WorkspaceUser,
-  WorkspaceUserSchema,
-} from 'src/workspaceUser/workspaceUser.schema';
+import { WorkspaceUser } from 'src/workspaceUser/workspaceUser.schema';
 
 @Injectable()
 export class AuthService {

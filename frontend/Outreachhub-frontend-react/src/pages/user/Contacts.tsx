@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { axiosInstance } from "../auth/Login";
 import type { AppDispatch, RootState } from "@/redux/store";
 import { selectSelectedWorkspaceId } from "@/redux/slices/workspaceSlice";
@@ -24,13 +24,12 @@ const Contacts = () => {
   const { contacts } = useSelector((state:RootState) => state.contact);
   const dispatch = useDispatch<AppDispatch>();
   const navigator = useNavigate();
-  const location = useLocation();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [filterBy, setFilterBy] = useState<string>("name"); // Default filter
   useEffect(()=>{
     if(!currentWorkspaceId){
       console.log("No workspace selected, redirecting to /user",currentWorkspaceId);
-      navigator("/user",{state:{from:location}})
+      navigator("/user")
     }
   },[currentWorkspaceId])
   const handleDelete = async (contactId:string) => {
@@ -104,7 +103,7 @@ const Contacts = () => {
             </Select>
           </div>
             {permissions.write && (
-              <Button className="ml-auto" onClick={() =>navigator( '/user/contacts/create',{state:{from:location}})}>
+              <Button className="ml-auto" onClick={() =>navigator( '/user/contacts/create')}>
                 Create Contact
               </Button>
             )}
@@ -118,7 +117,7 @@ const Contacts = () => {
                 key={contact.id}
                 contact={contact}
                 onEdit={(contactId) => {
-                  navigator(`/user/contacts/edit/${contactId}`,{state:{from:location}});
+                  navigator(`/user/contacts/edit/${contactId}`);
                   }}
                 onDelete={handleDelete}
               />

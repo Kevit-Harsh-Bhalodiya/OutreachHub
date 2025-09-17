@@ -24,6 +24,12 @@ export class WorkspaceController {
     private workspaceService: WorkspaceService,
     private workspaceMembershipService: WorkspaceMembershipService,
   ) {}
+  @Get('/workspaceUser')
+  @UseGuards(AuthGuard, AdminGuard)
+  async getAllWorkspaceUsers(@Req() req: any): Promise<any> {
+    const users = await this.workspaceMembershipService.getAllWorkspaceUsers();
+    return users;
+  }
   @Post('/setCurrentWorkspace')
   @UseGuards(AuthGuard, UserGuard)
   async setCurrentWorkspace(
@@ -144,5 +150,4 @@ export class WorkspaceController {
     );
     return res;
   }
-
 }

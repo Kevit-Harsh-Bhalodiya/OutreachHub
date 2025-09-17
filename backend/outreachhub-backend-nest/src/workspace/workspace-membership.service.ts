@@ -11,6 +11,45 @@ export class WorkspaceMembershipService {
     private workspaceUser: Model<WorkspaceUser>,
     private userService: UserService,
   ) {}
+  async getAllWorkspaceUsers(): Promise<any[]> {
+    const user = await this.workspaceUser
+      .aggregate([
+        {
+          $match: { isDeleted: false },
+        },
+        {
+          $lookup: {
+            from: 'workspaces',
+            localField: 'workspaceId',
+            foreignField: '_id',
+            as: 'populatedWorkspace',
+          },
+        },
+        {
+          $unwind: '$populatedWorkspace',
+        },
+        {
+          $group: {
+            _id: '$userId',
+            workspaces: {
+              $push: {
+                _id: '$populatedWorkspace._id',
+                name: '$populatedWorkspace.name',
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            userId: '$_id',
+            workspaces: 1,
+          },
+        },
+      ])
+      .exec();
+    return user;
+  }
   async addUserToWorkspace(
     body: any,
   ): Promise<WorkspaceUser | { message: string; error?: any }> {

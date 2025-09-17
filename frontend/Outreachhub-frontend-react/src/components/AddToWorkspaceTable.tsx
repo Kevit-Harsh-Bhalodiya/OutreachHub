@@ -31,6 +31,11 @@ interface Permissions {
 interface AddToWorkspaceTableProps {
   workspaces: Workspace[];
   userId: string;
+  // onAddUser: (details: {
+  //   userId: string;
+  //   workspaceId: string;
+  //   permissions: { write: boolean; allowAdd: boolean };
+  // }) => void;
   onAddUser: (data: {
     userId: string;
     workspaceId: string;

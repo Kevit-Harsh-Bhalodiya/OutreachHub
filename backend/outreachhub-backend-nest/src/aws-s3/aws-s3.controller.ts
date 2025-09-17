@@ -27,6 +27,7 @@ export class AwsS3Controller {
       new ParseFilePipe({
         validators: [
           new MaxFileSizeValidator({ maxSize: 1 * 1024 * 1024 }),
+          // new FileTypeValidator({ fileType: /(jpg|jpeg|png)$/ }),
           new FileTypeValidator({ fileType: /^image\/(jpeg|png|jpg)$/ }),
         ],
       }),

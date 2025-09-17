@@ -8,25 +8,24 @@ import {
   PERSIST,
   PURGE,
   REGISTER,
-} from "redux-persist";
-import storage from "redux-persist/lib/storage";
+} from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 
 import themeReducer from "./slices/ThemeSwitcher";
-import uiReducer from "./slices/mobileView";
-import authReducer from "./slices/authSlice";
-import adminDashboardDataReducer from "./slices/adminDashboardData";
-import workspaceReducer from "./slices/workspaceSlice";
-import userReducer from "./slices/userSlice";
-import campaignReducer from "./slices/campaignSlice";
-import contactReducer from "./slices/contactSlice";
-import adminReducer from "./slices/adminSlice";
-import messageTemplateReducer from "./slices/messageTemplateSlice";
-import workspaceUserReducer from "./slices/workspaceUserSlice";
+import uiReducer from './slices/mobileView';
+import authReducer from './slices/authSlice';
+import adminDashboardDataReducer from './slices/adminDashboardData';
+import workspaceReducer from './slices/workspaceSlice'; 
+import userReducer from './slices/userSlice'; 
+import campaignReducer from './slices/campaignSlice'; 
+import contactReducer from './slices/contactSlice';
+import adminReducer from './slices/adminSlice';
+import messageTemplateReducer from './slices/messageTemplateSlice';
 
 const rootReducer = combineReducers({
   theme: themeReducer,
   ui: uiReducer,
-  auth: authReducer,
+  auth: authReducer, 
   adminSidebar: adminDashboardDataReducer,
   workspace: workspaceReducer,
   user: userReducer,
@@ -34,13 +33,12 @@ const rootReducer = combineReducers({
   contact: contactReducer,
   admin: adminReducer,
   messageTemplate: messageTemplateReducer,
-  workspaceUser: workspaceUserReducer,
 });
 
 const persistConfig = {
-  key: "root",
+  key: 'root',
   storage,
-  whitelist: ["theme", "auth", "adminSidebar", "user", "workspace"],
+  whitelist: ['theme', 'auth', 'adminSidebar','user','workspace'], 
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

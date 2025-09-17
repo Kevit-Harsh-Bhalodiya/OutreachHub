@@ -1,14 +1,6 @@
 import * as React from "react";
-import { useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
-
-import type {
-  ColumnDef,
-  ColumnFiltersState,
-  PaginationState,
-  SortingState,
-  VisibilityState,
-} from "@tanstack/react-table";
+import { z } from "zod";
+import type { ColumnDef,ColumnFiltersState,SortingState,VisibilityState } from "@tanstack/react-table";
 import {
   flexRender,
   getCoreRowModel,
@@ -18,17 +10,15 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import {
-  ArrowUpDown,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-  MoreHorizontal,
-} from "lucide-react";
-
-import { Badge } from "@/components/ui/badge";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -38,7 +28,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -47,257 +36,212 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  ArrowUpDown,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  MoreHorizontal,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { axiosInstance } from "@/pages/auth/Login";
+import { useSelector } from "react-redux";
 import type { RootState } from "@/redux/store";
-import type { User, Contact } from "@/types";
 
-// --- Data Structure Definitions ---
-
-interface UserDisplayData {
+interface User {
   _id: string;
   name: string;
-  email: string;
-  phoneNo: string;
-  contactsCreated: number;
-  workspaceCount: number; // New property for the count
-  workspaceNames: string[]; // New property for the names
+  contactInfo: {
+    countryCode: string;
+    phoneNo: number;
+    email: string;
+  };
 }
-interface WorkspaceUser {
-  userId: string;
-  workspaces: {
-    _id: string;
-    name: string;
-  }[];
+
+interface Contact {
+  creator: string;
 }
+
+const userDisplaySchema = z.object({
+  _id: z.string(),
+  name: z.string(),
+  email: z.string().email(),
+  phoneNo: z.string(),
+  contactsCreated: z.number(),
+});
+
+type UserDisplayData = z.infer<typeof userDisplaySchema>;
 
 interface UsersDataTableProps {
   users: User[];
   contacts: Contact[];
-  workspaceUser: WorkspaceUser[];
 }
 
-export function DataTable({
-  users = [],
-  contacts = [],
-  workspaceUser = [],
-}: UsersDataTableProps) {
-  const token = useSelector((state: RootState) => state.auth.token);
-  const navigator = useNavigate();
-  const location = useLocation();
+const getColumns = ({
+  onEdit,
+  onDelete,
+onAddToWorkspace,
+ removeFronWorkspace,
+}: {
+  onEdit: (userId: string) => void;
+  onDelete: (userId: string) => void;
+ onAddToWorkspace: (userId: string) => void;
+     removeFronWorkspace: (userId: string) => void;
+}): ColumnDef<UserDisplayData>[] => [
+  {
+    accessorKey: "name",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Name
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => <div className="capitalize">{row.getValue("name")}</div>,
+  },
+  {
+    accessorKey: "email",
+    header: "Email",
+  },
+  {
+    accessorKey: "phoneNo",
+    header: "Phone No",
+  },
+  {
+    accessorKey: "contactsCreated",
+    header: ({ column }) => (
+      <div className="text-right">
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Contacts Created
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      </div>
+    ),
+    cell: ({ row }) => {
+      return (
+        <div className="text-right font-medium">
+          {row.getValue("contactsCreated")}
+        </div>
+      );
+    },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      const user = row.original;
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem
+              onClick={() => navigator.clipboard.writeText(user.email)}
+            >
+              Copy Email
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => onAddToWorkspace(user._id)}
+            >
+              Add to Workspace
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => removeFronWorkspace(user._id)}>
+              Remove from Workspace
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onEdit(user._id)}>
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-red-600 focus:text-red-600"
+              onClick={() => onDelete(user._id)}
+            >
+              Delete
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>View User</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
+  },
+];
+
+export function DataTable({ users, contacts }: UsersDataTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: "contactsCreated", desc: true },
   ]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const token = useSelector<any>((state:RootState) => state.auth.token);
+  const navigator = useNavigate();
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
-  const [pagination, setPagination] = React.useState<PaginationState>({
+  const [pagination, setPagination] = React.useState<any>({
     pageIndex: 0,
     pageSize: 10,
   });
 
-  // --- Action Handlers ---
-
   const handleEdit = (userId: string) => {
-    navigator(`/admin/editUser/${userId}`, { state: { from: location } });
+    console.log("Edit user with ID:", userId);
+    try{
+      navigator(`/admin/editUser/${userId}`);
+    }catch(error){
+      console.error(error)
+    }
   };
-  const handleAddToWorkspace = (userId: string) => {
-    navigator(`/admin/addUserToWorkspace/${userId}`, {
-      state: { from: location },
-    });
-  };
-  const handleRemoveFromWorkspace = (userId: string) => {
-    navigator(`/admin/removeUserFromWorkspace/${userId}`, {
-      state: { from: location },
-    });
-  };
+  const handleAddToWorkspace = (userId: string)=>{
+    navigator(`/admin/addUserToWorkspace/${userId}`);
+  }
+  const handleRemoveFromWorkspace = (userId: string)=>{
+    navigator(`/admin/removeUserFromWorkspace/${userId}`);
+  }
   const handleDelete = async (userId: string) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
-      const response = await axiosInstance.delete(`/user/${userId}`, {
-        headers: { authorization: `Bearer ${token}` },
-      });
-      if (response.status === 200) {
-        alert("User deleted successfully");
+      console.log("Delete user with ID:", userId);
+      const response = await axiosInstance.delete(`/user/${userId}`,{headers:{authorization: `Bearer ${token}`}});
+      console.log(response)
+      if(response.status === 200){
+        alert("User deleted successfully")
         window.location.reload();
-      } else {
-        alert("Error deleting user");
+      }else{
+        alert("Error deleting user")
       }
+
     }
   };
 
-  // --- Column Definitions ---
-
-  const getColumns = React.useCallback(
-    (): ColumnDef<UserDisplayData>[] => [
-      {
-        accessorKey: "name",
-        header: ({ column }) => (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Name
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        ),
-        cell: ({ row }) => (
-          <div className="capitalize">{row.getValue("name")}</div>
-        ),
-      },
-      {
-        accessorKey: "email",
-        header: "Email",
-      },
-      // --- TASK 1 & 2: New 'Workspaces' Column with Tooltip ---
-      {
-        accessorKey: "workspaceCount",
-        header: () => <div className="text-center">Workspaces</div>,
-        cell: ({ row }) => {
-          const count = row.getValue("workspaceCount") as number;
-          const names = row.original.workspaceNames;
-
-          return (
-            <div className="text-center font-medium">
-              <TooltipProvider delayDuration={100}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Badge variant={count > 0 ? "secondary" : "outline"}>
-                      {count}
-                    </Badge>
-                  </TooltipTrigger>
-                  {count > 0 && (
-                    <TooltipContent>
-                      <div className="flex flex-col gap-1 p-1">
-                        {names.map((name) => (
-                          <p key={name}>{name}</p>
-                        ))}
-                      </div>
-                    </TooltipContent>
-                  )}
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          );
-        },
-      },
-      {
-        accessorKey: "contactsCreated",
-        header: ({ column }) => (
-          <div className="text-right">
-            <Button
-              variant="ghost"
-              onClick={() =>
-                column.toggleSorting(column.getIsSorted() === "asc")
-              }
-            >
-              Contacts Created
-              <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
-        ),
-        cell: ({ row }) => (
-          <div className="text-right font-medium">
-            {row.getValue("contactsCreated")}
-          </div>
-        ),
-      },
-      {
-        id: "actions",
-        cell: ({ row }) => {
-          const user = row.original;
-          return (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <span className="sr-only">Open menu</span>
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem
-                  onClick={() => navigator.clipboard.writeText(user.email)}
-                >
-                  Copy Email
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => handleAddToWorkspace(user._id)}
-                >
-                  Add to Workspace
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => handleRemoveFromWorkspace(user._id)}
-                >
-                  Remove from Workspace
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleEdit(user._id)}>
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-red-600 focus:text-red-600"
-                  onClick={() => handleDelete(user._id)}
-                >
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          );
-        },
-      },
-    ],
-    [navigator, token],
+  const columns = React.useMemo(
+    () => getColumns({ onEdit: handleEdit, onDelete: handleDelete,onAddToWorkspace:handleAddToWorkspace, removeFronWorkspace:handleRemoveFromWorkspace }),
+    []
   );
-
-  const columns = React.useMemo(() => getColumns(), [getColumns]);
-
-  // --- Data Processing ---
 
   const processedData = React.useMemo(() => {
     const contactsCountMap = new Map<string, number>();
     for (const contact of contacts) {
-      if (contact.creator) {
-        contactsCountMap.set(
-          contact.creator,
-          (contactsCountMap.get(contact.creator) || 0) + 1,
-        );
-      }
+      contactsCountMap.set(
+        contact.creator,
+        (contactsCountMap.get(contact.creator) || 0) + 1
+      );
     }
-
-    // Create a map of userId to their workspace data
-    const userWorkspaceMap = new Map<string, { count: number; names: string[] }>();
-    for (const wsUser of workspaceUser) {
-      userWorkspaceMap.set(wsUser.userId, {
-        count: wsUser.workspaces.length,
-        names: wsUser.workspaces.map((ws) => ws.name),
-      });
-    }
-
-    return users.map(
-      (user): UserDisplayData => ({
-        _id: user._id,
-        name: user.name,
-        email: user.contactInfo.email,
-        phoneNo: `${user.contactInfo.countryCode} ${user.contactInfo.phoneNo}`,
-        contactsCreated: contactsCountMap.get(user._id) || 0,
-        // Get workspace data from the map
-        workspaceCount: userWorkspaceMap.get(user._id)?.count || 0,
-        workspaceNames: userWorkspaceMap.get(user._id)?.names || [],
-      }),
-    );
-  }, [users, contacts, workspaceUser]);
+    return users.map((user) => ({
+      _id: user._id,
+      name: user.name,
+      email: user.contactInfo.email,
+      phoneNo: `${user.contactInfo.countryCode} ${user.contactInfo.phoneNo}`,
+      contactsCreated: contactsCountMap.get(user._id) || 0,
+    }));
+  }, [users, contacts]);
 
   const table = useReactTable({
     data: processedData,
@@ -332,7 +276,7 @@ export function DataTable({
         <Button
           className="mx-3"
           onClick={() => {
-            navigator("/admin/createUser", { state: { from: location } });
+            navigator("/admin/createUser");
           }}
         >
           New User
@@ -371,7 +315,7 @@ export function DataTable({
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext(),
+                          header.getContext()
                         )}
                   </TableHead>
                 ))}
@@ -386,7 +330,7 @@ export function DataTable({
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext(),
+                        cell.getContext()
                       )}
                     </TableCell>
                   ))}

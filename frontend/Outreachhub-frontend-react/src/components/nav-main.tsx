@@ -8,7 +8,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Camera, Settings, Sun } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/redux/store";
 type IconName = "dashboard" | "camera" | "settings" | "sun";
@@ -33,7 +33,6 @@ export function NavMain({
     (state: RootState) => state.auth.isAdmin,
   );
   const navigate = useNavigate();
-  const location = useLocation();
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
@@ -43,7 +42,7 @@ export function NavMain({
               <SidebarMenuButton
                 tooltip="Quick Create"
                 onClick={() => {
-                  navigate("/admin/createWorkspace",{state:{from:location}});
+                  navigate("/admin/createWorkspace");
                 }}
                 className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
               >
@@ -63,7 +62,7 @@ export function NavMain({
                 <SidebarMenuButton
                   tooltip={item.title}
                   onClick={() => {
-                    navigate(item.url,{state:{from:location}});
+                    navigate(item.url);
                   }}
                 >
                   {IconComponent && <IconComponent className="size-5" />}

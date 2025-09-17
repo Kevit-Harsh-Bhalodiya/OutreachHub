@@ -45,7 +45,7 @@ import {
   ChevronsRight,
   MoreHorizontal,
 } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 // 1. DATA TYPES AND PROPS
 interface Workspace {
@@ -196,7 +196,6 @@ export function WorkspaceDataTable({
   onDelete,
 }: WorkspaceDataTableProps) {
   const navigator = useNavigate();
-  const location = useLocation();
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: "name", desc: false },
   ]);
@@ -249,7 +248,7 @@ export function WorkspaceDataTable({
         <Button
           className="mx-3"
           onClick={() => {
-            navigator("/admin/createWorkspace",{state:{from:location}});
+            navigator("/admin/createWorkspace");
           }}
         >
           New Workspace

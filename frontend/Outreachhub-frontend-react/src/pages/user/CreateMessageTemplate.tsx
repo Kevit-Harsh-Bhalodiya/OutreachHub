@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { z } from "zod";
 import { axiosInstance } from "../auth/Login";
@@ -41,7 +41,6 @@ const CreateMessageTemplate = () => {
   const { templateId } = useParams<TemplateParams>();
   const isEditMode = !!templateId;
   const navigator = useNavigate();
-  const location = useLocation();
 
   const [isLoading, setIsLoading] = useState<boolean>(isEditMode);
   const token = useSelector((state: any) => state.auth.token);
@@ -91,7 +90,7 @@ const CreateMessageTemplate = () => {
       }
       if(response.status === 200 || response.status === 201) {
         toast.success(`Template ${isEditMode ? 'updated' : 'created'} successfully.`);
-        navigator('/user/message-templates',{state:{from:location}});
+        navigator('/user/message-templates');
       }else{
         toast.error(`Failed to ${isEditMode ? 'update' : 'create'} template.`);
       }

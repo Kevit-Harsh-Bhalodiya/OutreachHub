@@ -2,7 +2,7 @@ import { AddToWorkspaceTable } from "@/components/AddToWorkspaceTable";
 import { fetchWorkspaces } from "@/redux/slices/workspaceSlice";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { axiosInstance } from "../auth/Login";
 import type { AppDispatch, RootState } from "@/redux/store";
 
@@ -23,7 +23,6 @@ const AddToWorkspace = () => {
   const token = useSelector((state: RootState) => state.auth.token);
   const dispatch = useDispatch<AppDispatch>();
   const navigator = useNavigate();
-  const location = useLocation();
   useEffect(() => {
     dispatch(fetchWorkspaces());
   }, []);
@@ -53,7 +52,7 @@ const AddToWorkspace = () => {
         alert("User added to workspace successfully");
       } else {
         alert("Failed to add user to workspace");
-        navigator("/admin/user",{state:{from:location}});
+        navigator("/admin/user");
       }
     } catch (error) {
       console.error("Failed to add user to workspace", error);

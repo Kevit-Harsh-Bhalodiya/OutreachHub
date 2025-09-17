@@ -1,58 +1,53 @@
-import type { SubmitHandler } from "react-hook-form";
-import { useForm, Controller } from "react-hook-form";
+import type { SubmitHandler } from "react-hook-form"
+import { useForm, Controller } from "react-hook-form"
 import { useDispatch, useSelector } from "react-redux";
 import { selectTheme, toggleTheme } from "../../redux/slices/ThemeSwitcher";
 import { Moon, Sun } from "lucide-react";
 import axios from "axios";
-import { useLocation, useNavigate } from "react-router-dom";
-import { login } from "../../redux/slices/authSlice";
+import { useNavigate } from "react-router-dom";
+import { login} from "../../redux/slices/authSlice";
 import type { AppDispatch, RootState } from "../../redux/store";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { initializeSidebar } from "@/redux/slices/adminDashboardData";
 import { setUserId } from "@/redux/slices/userSlice";
+
 type FormInput = {
-  email: string;
-  password: string;
-  isAdmin: boolean;
-};
+  email: string,
+  password: string
+  isAdmin: boolean
+}
+
 export const axiosInstance = axios.create({
   baseURL: 'http://localhost:3000',
-  // baseURL: "https://outreachhub-backend.onrender.com",
+  // baseURL: 'https://outreachhub-backend.onrender.com',
   timeout: 5000,
-  headers: { "Content-Type": "application/json" },
-});
+  headers: { 'Content-Type': 'application/json' }
+})
 const Login = () => {
   const currentTheme = useSelector<RootState, "light" | "dark">(selectTheme);
   const dispatch = useDispatch<AppDispatch>();
-  const {
-    control,
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormInput>({
+  const { control, register, handleSubmit, formState: { errors } } = useForm<FormInput>({
     defaultValues: {
-      isAdmin: false,
+      isAdmin: false
     },
-    mode: "onBlur",
+    mode: 'onBlur'
   });
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const onSubmit: SubmitHandler<FormInput> = async (data) => {
+  const navigate = useNavigate()
+  const onSubmit: SubmitHandler<FormInput> = async data => {
     try {
       const loginData = {
         email: data.email,
-        password: data.password,
-      };
-      let response;
-      if (data.isAdmin) {
-        response = await axiosInstance.post(`/admin/login`, loginData);
+        password: data.password
+      }
+      let response 
+      if(data.isAdmin){
+        response = await axiosInstance.post(`/admin/login`, loginData) 
         const adminSidebarData = {
           user: {
             name: response.data.name,
             email: response.data.email,
-            avatar: response.data.profilePicture,
+            avatar: response.data.profilePicture
           },
           navMain: [
             {
@@ -66,23 +61,21 @@ const Login = () => {
               active: false,
             },
           ],
-          navSecondary: [],
-        };
-        dispatch(initializeSidebar(adminSidebarData));
-      } else {
+          navSecondary: [
+          ]
+        }
+        dispatch(initializeSidebar(adminSidebarData ));
+      }  else{
         console.log("User Login");
-        response = await axiosInstance.post("/user/login", loginData);
+        response = await axiosInstance.post('/user/login', loginData)
         console.log(response);
-        localStorage.setItem(
-          "permissions",
-          JSON.stringify(response.data.permissions),
-        );
+        localStorage.setItem('permissions',JSON.stringify(response.data.permissions))
         dispatch(setUserId(response.data.userId));
         const userSidebarData = {
-          user: {
+          user:{
             name: response.data.name,
             email: response.data.email,
-            avatar: response.data.profilePicture,
+            avatar: response.data.profilePicture
           },
           navMain: [
             {
@@ -106,74 +99,41 @@ const Login = () => {
               active: false,
             },
           ],
-          navSecondary: [],
-        };
+          navSecondary: []
+        }
         dispatch(initializeSidebar(userSidebarData));
       }
+      
 
-      alert("Login Successful");
-      dispatch(
-        login({
-          token: response.data.token,
-          currentWorkspace: null,
-          isAdmin: response.data.isAdmin,
-        }),
-      );
-      navigate(response.data.isAdmin ? "/admin" : "/user", {state:{ from: location }});
+      alert('Login Successful')
+      dispatch(login({ token: response.data.token, currentWorkspace: null, isAdmin: response.data.isAdmin }))
+      navigate(response.data.isAdmin ? '/admin' : '/user')
     } catch (err) {
-      alert("Login Failed");
+      alert('Login Failed')
     }
   };
 
   return (
-    <div
-      className={`relative w-screen h-screen overflow-hidden flex items-center justify-center ${currentTheme === "light" ? "bg-[#FAFAFA] text-black" : "bg-[#08080a] text-white"}`}
-    >
+    <div className={`relative w-screen h-screen overflow-hidden flex items-center justify-center ${currentTheme === 'light' ? 'bg-[#FAFAFA] text-black' : 'bg-[#08080a] text-white'}`}>
       <div className="absolute right-8 top-10 ">
-        {currentTheme === "light" ? (
-          <Sun
-            className="cursor-pointer"
-            onClick={() => {
-              dispatch(toggleTheme());
-            }}
-          ></Sun>
-        ) : (
-          <Moon
-            className="cursor-pointer"
-            onClick={() => {
-              dispatch(toggleTheme());
-            }}
-          ></Moon>
-        )}
+        {
+          currentTheme === 'light' ?
+            <Sun className="cursor-pointer" onClick={() => { dispatch(toggleTheme()) }}></Sun>
+            :
+            <Moon className="cursor-pointer" onClick={() => { dispatch(toggleTheme()) }}></Moon>
+
+        }
       </div>
       {/* Background Layer */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <span
-          className={`absolute text-[80vw] font-black ${currentTheme === "light" ? "text-black/10" : "text-white/10"} select-none top-[-80%] left-[-30%]`}
-        >
-          X
-        </span>
-        <span
-          className={`absolute text-[80vw] font-black ${currentTheme === "light" ? "text-black/10" : "text-white/10"} select-none top-[-70%] left-[70%]`}
-        >
-          O
-        </span>
-        <span
-          className={`absolute text-[80vw] font-black ${currentTheme === "light" ? "text-black/10" : "text-white/10"} select-none top-[50%] right-[-27%]`}
-        >
-          X
-        </span>
-        <span
-          className={`absolute text-[80vw] font-black ${currentTheme === "light" ? "text-black/10" : "text-white/10"} select-none top-[40%] left-[-20%]`}
-        >
-          O
-        </span>
+        <span className={`absolute text-[80vw] font-black ${currentTheme === 'light' ? 'text-black/10' : 'text-white/10'} select-none top-[-80%] left-[-30%]`}>X</span>
+        <span className={`absolute text-[80vw] font-black ${currentTheme === 'light' ? 'text-black/10' : 'text-white/10'} select-none top-[-70%] left-[70%]`}>O</span>
+        <span className={`absolute text-[80vw] font-black ${currentTheme === 'light' ? 'text-black/10' : 'text-white/10'} select-none top-[50%] right-[-27%]`}>X</span>
+        <span className={`absolute text-[80vw] font-black ${currentTheme === 'light' ? 'text-black/10' : 'text-white/10'} select-none top-[40%] left-[-20%]`}>O</span>
       </div>
 
       {/* Signup Card */}
-      <div
-        className={`relative z-10 flex flex-col lg:flex-row gap-6 p-8 rounded-2xl shadow-xl w-[90%] max-w-4xl border border-gray-300 ${currentTheme === "light" ? "bg-white" : "bg-gray-900"}`}
-      >
+      <div className={`relative z-10 flex flex-col lg:flex-row gap-6 p-8 rounded-2xl shadow-xl w-[90%] max-w-4xl border border-gray-300 ${currentTheme === 'light' ? 'bg-white' : 'bg-gray-900'}`}>
         {/* Hero Image Section */}
         <div className="relative flex justify-center items-center w-full lg:w-1/2">
           <img
@@ -194,51 +154,43 @@ const Login = () => {
             </h1>
           </div>
 
-          <form
-            className="flex flex-col gap-4"
-            onSubmit={handleSubmit(onSubmit)}
-          >
+          <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col">
               <label htmlFor="email" className="font-semibold text-lg">
                 Email:
               </label>
               <input
-                {...register("email", {
-                  required: true,
-                  pattern: {
-                    value:
-                      /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/,
-                    message: "Invalid email address",
-                  },
+                {...register("email", { required: true,
+                  pattern:{
+                    value: /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/,
+                    message: "Invalid email address"
+                  }
                 })}
                 type="email"
                 id="email"
                 placeholder="Enter your email"
-                className={`rounded-lg border px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-black ${currentTheme === "light" ? "bg-white text-black" : "bg-gray-800 text-white"}`}
+                className={`rounded-lg border px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-black ${currentTheme === 'light' ? 'bg-white text-black' : 'bg-gray-800 text-white'}`}
               />
             </div>
-            {errors.email && (
-              <p className="text-red-900">{errors.email.message}</p>
-            )}
+            {errors.email && <p className="text-red-900">{errors.email.message}</p>}
 
             <div className="flex flex-col">
               <label htmlFor="password" className="font-semibold text-lg">
                 Password:
               </label>
               <input
-                {...register("password", {
+                {...register("password", { 
                   required: true,
                   minLength: 3,
+
                 })}
                 type="password"
                 id="password"
                 placeholder="Enter your password"
-                className={`rounded-lg border px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-black ${currentTheme === "light" ? "bg-white text-black" : "bg-gray-800 text-white"}`}
+                className={`rounded-lg border px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-black ${currentTheme === 'light' ? 'bg-white text-black' : 'bg-gray-800 text-white'}`}
               />
             </div>
-            {errors.password && (
-              <span className="text-red-900">Invalid password</span>
-            )}
+            {errors.password && <span className="text-red-900">Invalid password</span>}
             <div className="flex gap-2 items-center">
               <Controller
                 control={control}
@@ -254,8 +206,7 @@ const Login = () => {
                       Admin Login
                     </Label>
                   </div>
-                )}
-              />
+                )} />
             </div>
 
             <button
@@ -268,7 +219,8 @@ const Login = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login
+

@@ -1,7 +1,5 @@
-import { TrendingUp } from 'lucide-react';
-import { useSelector } from 'react-redux';
-import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from 'recharts';
-
+import { TrendingUp } from "lucide-react";
+import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from "recharts";
 import {
   Card,
   CardContent,
@@ -9,59 +7,35 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import type { ChartConfig } from '@/components/ui/chart';
+} from "@/components/ui/card";
+import type { ChartConfig } from "@/components/ui/chart";
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from '@/components/ui/chart';
-import type { RootState } from '@/redux/store';
+} from "@/components/ui/chart";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/redux/store";
+// Assuming your Redux state has a users slice with the API data
 
-interface User {
-  createdAt: string;
-}
-
-type MonthlyData = {
-  month: string;
-  desktop: number;
-};
-
-export const description = 'A radar chart';
+export const description = "A radar chart";
 
 const chartConfig = {
   desktop: {
-    label: 'Users',
-    color: 'var(--chart-1)',
+    label: "Users",
+    color: "var(--chart-1)",
   },
 } satisfies ChartConfig;
 
 export function ChartRadarDefault() {
-  const { user: users, loading } = useSelector((state: RootState) => state.user);
-
-  if (loading) {
-    return (
-      <Card className="flex h-[433px] w-full items-center justify-center sm:w-1/2">
-        <CardDescription>Loading Chart Data...</CardDescription>
-      </Card>
-    );
-  }
-
-  if (!Array.isArray(users)) {
-    return (
-      <Card className="flex h-[433px] w-full items-center justify-center sm:w-1/2">
-        <CardDescription>No user data available.</CardDescription>
-      </Card>
-    );
-  }
+  // Get user data from Redux store
+  const users = useSelector((state: RootState) => state.user.user);
 
   const chartData = users.reduce(
-    (acc: MonthlyData[], person: User) => {
-      if (!person.createdAt) return acc;
-      const date = new Date(person.createdAt);
-      const month = date.toLocaleString('default', { month: 'long' });
-
-      const existing = acc.find((item) => item.month === month);
+    (acc: any, user: any) => {
+      const date = new Date(user.createdAt);
+      const month = date.toLocaleString("default", { month: "long" });
+      const existing = acc.find((item: any) => item.month === month);
       if (existing) {
         existing.desktop += 1;
       } else {
@@ -69,38 +43,38 @@ export function ChartRadarDefault() {
       }
       return acc;
     },
-    [] as MonthlyData[],
+    [] as { month: string; desktop: number }[],
   );
 
-  // Use the correct type for the sort parameters
-  chartData.sort((a: MonthlyData, b: MonthlyData) => {
-    const monthOrder = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
-    ];
-    return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month);
+  // Sort data by date to ensure chronological order
+  chartData.sort((a: any, b: any) => {
+    const dateA = new Date(a.month + " 1, 2025");
+    const dateB = new Date(b.month + " 1, 2025");
+    return dateA.getTime() - dateB.getTime();
   });
 
+  // Calculate trend for footer
   const latestMonth = chartData[chartData.length - 1]?.desktop || 0;
   const previousMonth = chartData[chartData.length - 2]?.desktop || 0;
   const trend =
     previousMonth > 0
       ? (((latestMonth - previousMonth) / previousMonth) * 100).toFixed(1)
-      : '0';
+      : 0;
 
-  const firstMonth = chartData[0]?.month || '';
-  const lastMonth = chartData[chartData.length - 1]?.month || '';
+  // Get date range for footer
+  const firstMonth = chartData[0]?.month || "";
+  const lastMonth = chartData[chartData.length - 1]?.month || "";
 
   return (
-    <Card className="w-full sm:w-1/2">
+    <Card className="w-[100%] sm:w-[50%] ">
       <CardHeader className="items-center pb-4">
-        <CardTitle>User Registrations by Month</CardTitle>
+        <CardTitle>Radar Chart</CardTitle>
         <CardDescription>
-          Showing total new users registered per month
+          Showing total visitors for the last 6 months
         </CardDescription>
       </CardHeader>
       <CardContent className="pb-0">
-        <ChartContainer config={chartConfig} className="mx-auto max-h-[250px]">
+        <ChartContainer config={chartConfig} className="mx-auto  max-h-[250px]">
           <RadarChart data={chartData}>
             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
             <PolarAngleAxis dataKey="month" />
@@ -114,11 +88,11 @@ export function ChartRadarDefault() {
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
-        <div className="flex items-center gap-2 font-medium leading-none">
+        <div className="flex items-center gap-2 leading-none font-medium">
           {`Trending up by ${trend}% this month`}
           <TrendingUp className="h-4 w-4" />
         </div>
-        <div className="flex items-center gap-2 leading-none text-muted-foreground">
+        <div className="text-muted-foreground flex items-center gap-2 leading-none">
           {firstMonth} - {lastMonth}
         </div>
       </CardFooter>

@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import { AdminModule } from './admin/admin.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -45,5 +47,7 @@ import { AwsS3Module } from './aws-s3/aws-s3.module';
     CampaignMessageModule,
     AwsS3Module,
   ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

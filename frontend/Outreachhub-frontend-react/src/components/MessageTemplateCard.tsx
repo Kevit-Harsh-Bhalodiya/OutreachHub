@@ -91,3 +91,12 @@ export function MessageTemplateCard({
     </Card>
   );
 }
+      // <CardFooter>
+      //   <Button
+      //     variant="default"
+      //     className="w-full"
+      //     onClick={() => onUseTemplate?.(template._id)}
+      //   >
+      //     Use Template
+      //   </Button>
+      // </CardFooter>
