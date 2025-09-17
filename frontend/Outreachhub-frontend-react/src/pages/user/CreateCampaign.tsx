@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { z } from "zod"; // Use 'z' directly
 import { axiosInstance } from "../auth/Login";
 import CustomFormField from "@/components/CustomFormField";
@@ -34,6 +34,7 @@ const CreateCampaign = () => {
   const { campaignId } = useParams<CampaignParams>();
   const isEditMode = !!campaignId;
   const navigator = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch<AppDispatch>();
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -94,7 +95,7 @@ const CreateCampaign = () => {
     if (response.status === 200 || response.status === 201) {
       alert(`Campaign ${isEditMode ? 'updated' : 'created'} successfully`);
       form.reset();
-      navigator('/user/campaigns'); // Navigate to a relevant page
+      navigator('/user/campaigns',{state:{from:location}}); // Navigate to a relevant page
     } else {
       alert(`Failed to ${isEditMode ? 'update' : 'create'} campaign`);
     }

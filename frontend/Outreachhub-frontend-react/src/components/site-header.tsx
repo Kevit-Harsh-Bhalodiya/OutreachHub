@@ -1,14 +1,20 @@
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { SidebarTrigger } from "@/components/ui/sidebar"
-import { selectTheme, toggleTheme } from "@/redux/slices/ThemeSwitcher"
-import type { RootState } from "@/redux/store"
-import { Moon, Sun } from "lucide-react"
-import { useDispatch, useSelector } from "react-redux"
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { selectTheme, toggleTheme } from "@/redux/slices/ThemeSwitcher";
+import type { RootState } from "@/redux/store";
+import { ChevronLeft, Moon, Sun } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export function SiteHeader() {
-  const dispatch = useDispatch()
-  const currentTheme = useSelector<RootState,'light'|'dark'>(selectTheme);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const fromPath = location.state?.from?.pathname;
+  const showBackButton = fromPath && fromPath !== "/login";
+
+  const currentTheme = useSelector<RootState, "light" | "dark">(selectTheme);
   return (
     <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
       <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
@@ -17,18 +23,35 @@ export function SiteHeader() {
           orientation="vertical"
           className="mx-2 data-[orientation=vertical]:h-4"
         />
-        <h1 className="text-base font-medium">Welcome {localStorage.getItem('username')??""}</h1>
+
+        {showBackButton && (
+          <button
+            onClick={() => navigate(-1)}
+            className="group"
+            aria-label="Go back"
+          >
+            <ChevronLeft className="hidden h-5 w-5 cursor-pointer text-muted-foreground transition-transform hover:scale-110 group-data-[collapsible=icon]/sidebar-wrapper:-rotate-180 lg:inline-flex" />
+          </button>
+        )}
+        <h1 className="text-base font-medium">
+          Welcome {localStorage.getItem("username") ?? ""}
+        </h1>
         <div className="ml-auto flex items-center gap-2">
-          <Button variant="ghost" onClick={()=>{dispatch(toggleTheme())}} asChild size="sm" className="hidden sm:flex">
-            <div
-              rel="noopener noreferrer"
-              className="dark:text-foreground"
-            >
-                    {currentTheme === "light" ? <Sun /> : <Moon />}
+          <Button
+            variant="ghost"
+            onClick={() => {
+              dispatch(toggleTheme());
+            }}
+            asChild
+            size="sm"
+            className="hidden sm:flex"
+          >
+            <div rel="noopener noreferrer" className="dark:text-foreground">
+              {currentTheme === "light" ? <Sun /> : <Moon />}
             </div>
           </Button>
         </div>
       </div>
     </header>
-  )
+  );
 }

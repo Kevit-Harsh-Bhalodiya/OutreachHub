@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { z } from "zod";
 import { axiosInstance } from "../auth/Login"; // Adjust import path as needed
@@ -19,10 +19,18 @@ type ContactParams = {
 // Zod schema for contact validation
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  profilePicture: z.string().url({ message: "Please upload a valid image." }).optional().or(z.literal('')),
+  profilePicture: z
+    .string()
+    .url({ message: "Please upload a valid image." })
+    .optional()
+    .or(z.literal("")),
   contactInfo: z.object({
     countryCode: z.string().min(2, { message: "Required" }),
-    phoneNo: z.string().min(10).max(10).regex(/^[0-9]{10}$/, { message: "Phone Number must be 10 digits" }),
+    phoneNo: z
+      .string()
+      .min(10)
+      .max(10)
+      .regex(/^[0-9]{10}$/, { message: "Phone Number must be 10 digits" }),
     email: z.string().email({ message: "Please enter a valid email." }),
   }),
   company: z.string().optional(),
@@ -34,6 +42,7 @@ const CreateContact = () => {
   const { contactId } = useParams<ContactParams>();
   const isEditMode = !!contactId;
   const navigator = useNavigate();
+  const location = useLocation();
 
   const [isLoading, setIsLoading] = useState<boolean>(isEditMode);
   const token = useSelector((state: any) => state.auth.token);
@@ -58,11 +67,14 @@ const CreateContact = () => {
   useEffect(() => {
     if (isEditMode && contactId) {
       setIsLoading(true);
-      axiosInstance.get(`/contact/${contactId}`, { headers: { authorization: `Bearer ${token}` } })
-        .then(res => {
+      axiosInstance
+        .get(`/contact/${contactId}`, {
+          headers: { authorization: `Bearer ${token}` },
+        })
+        .then((res) => {
           form.reset(res.data); // Reset form with fetched data
         })
-        .catch(err => {
+        .catch((err) => {
           console.error("Error fetching contact:", err);
           toast.error("Failed to load contact details.");
         })
@@ -75,20 +87,28 @@ const CreateContact = () => {
     try {
       let response;
       if (isEditMode) {
-        response = await axiosInstance.patch(`/contact/${contactId}`, values, { headers: { authorization: `Bearer ${token}` } });
+        response = await axiosInstance.patch(`/contact/${contactId}`, values, {
+          headers: { authorization: `Bearer ${token}` },
+        });
       } else {
-        response = await axiosInstance.post('/contact', values, { headers: { authorization: `Bearer ${token}` } });
+        response = await axiosInstance.post("/contact", values, {
+          headers: { authorization: `Bearer ${token}` },
+        });
       }
       if (response.status === 200 || response.status === 201) {
-        toast.success(`Contact ${isEditMode ? 'updated' : 'created'} successfully.`);
-        navigator("/user/contacts");
+        toast.success(
+          `Contact ${isEditMode ? "updated" : "created"} successfully.`,
+        );
+        navigator("/user/contacts", { state: { from: location } });
       } else {
-        toast.error(`Failed to ${isEditMode ? 'update' : 'create'} contact.`);
+        toast.error(`Failed to ${isEditMode ? "update" : "create"} contact.`);
       }
-      toast.success(`Contact ${isEditMode ? 'updated' : 'created'} successfully!`);
-      navigator('/user/contacts'); // Navigate to contacts list page
+      toast.success(
+        `Contact ${isEditMode ? "updated" : "created"} successfully!`,
+      );
+      navigator("/user/contacts", { state: { from: location } }); // Navigate to contacts list page
     } catch (error) {
-      toast.error(`Failed to ${isEditMode ? 'update' : 'create'} contact.`);
+      toast.error(`Failed to ${isEditMode ? "update" : "create"} contact.`);
       console.error(error);
     }
   };
@@ -99,10 +119,11 @@ const CreateContact = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">{isEditMode ? "Edit Contact" : "Create New Contact"}</h1>
+      <h1 className="text-2xl font-bold mb-6">
+        {isEditMode ? "Edit Contact" : "Create New Contact"}
+      </h1>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-
           <FileUploadField name="profilePicture" label="Profile Picture" />
 
           <CustomFormField
@@ -163,7 +184,9 @@ const CreateContact = () => {
             placeholder="Add tags..."
           />
 
-          <Button type="submit">{isEditMode ? "Save Changes" : "Create Contact"}</Button>
+          <Button type="submit">
+            {isEditMode ? "Save Changes" : "Create Contact"}
+          </Button>
         </form>
       </FormProvider>
     </div>

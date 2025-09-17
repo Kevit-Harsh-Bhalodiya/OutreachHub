@@ -5,7 +5,7 @@ import { selectSelectedWorkspaceId } from "@/redux/slices/workspaceSlice"
 import type { AppDispatch, RootState } from "@/redux/store"
 import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 
 type Campaign = {
   id: string;
@@ -17,10 +17,11 @@ type Campaign = {
 };
 const UserHome = () => {
   const navigator = useNavigate();
+  const location = useLocation();
   const currentWorkspaceId = useSelector(selectSelectedWorkspaceId);
   if (!currentWorkspaceId) {
     console.log("No workspace selected, redirecting to /user", currentWorkspaceId);
-    navigator("/user")
+    navigator("/user",{state:{from:location}})
   }
   const heads = [
     { name: "Name", className: "w-[100px]" },

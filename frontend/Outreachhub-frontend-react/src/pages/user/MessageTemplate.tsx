@@ -11,7 +11,7 @@ import {
 import { Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { axiosInstance } from "../auth/Login";
 import type { AppDispatch, RootState } from "@/redux/store";
@@ -27,14 +27,19 @@ interface MessageTemplate {
 
 const MessageTemplate = () => {
   const navigator = useNavigate();
-  const currentWorkspaceId =  useSelector(selectSelectedWorkspaceId);
-  useEffect(()=>{
-  if(!currentWorkspaceId){
-    console.log("No workspace selected, redirecting to /user",currentWorkspaceId);
-    navigator("/user")
-  }
-  },[currentWorkspaceId])
-  const permissions = JSON.parse(localStorage.getItem("permissions")??"") || "";
+  const location = useLocation();
+  const currentWorkspaceId = useSelector(selectSelectedWorkspaceId);
+  useEffect(() => {
+    if (!currentWorkspaceId) {
+      console.log(
+        "No workspace selected, redirecting to /user",
+        currentWorkspaceId,
+      );
+      navigator("/user",{state:{from:location}});
+    }
+  }, [currentWorkspaceId]);
+  const permissions =
+    JSON.parse(localStorage.getItem("permissions") ?? "") || "";
   const templates = useSelector(
     (state: RootState) => state.messageTemplate.templates,
   );
@@ -114,7 +119,7 @@ const MessageTemplate = () => {
           {permissions.write && (
             <Button
               className="ml-auto"
-              onClick={() => navigator("/user/message-template/create")}
+              onClick={() => navigator("/user/message-template/create",{state:{from:location}})}
             >
               Create Template
             </Button>

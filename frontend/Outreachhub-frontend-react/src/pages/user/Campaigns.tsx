@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { fetchCampaignsByUserId } from "@/redux/slices/campaignSlice";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { axiosInstance } from "../auth/Login";
 import type { AppDispatch, RootState } from "@/redux/store";
 import { selectSelectedWorkspaceId } from "@/redux/slices/workspaceSlice";
@@ -25,11 +25,12 @@ type Campaign = {
 
 const Campaigns = () => {
   const navigator = useNavigate();
+  const location = useLocation();
   const currentWorkspaceId = useSelector(selectSelectedWorkspaceId);
   useEffect(() => {
     if (!currentWorkspaceId) {
       console.log("No workspace selected, redirecting to /user", currentWorkspaceId);
-      navigator("/user")
+      navigator("/user",{state:{from:location}})
     }
   }, [currentWorkspaceId])
   const permissions = JSON.parse(localStorage.getItem("permissions") ?? "") || "";
@@ -54,7 +55,7 @@ const Campaigns = () => {
     dispatch(fetchCampaignsByUserId())
   }, [])
   const handleEdit = (campaignId: string) => {
-    navigator(`/user/campaigns/edit/${campaignId}`);
+    navigator(`/user/campaigns/edit/${campaignId}`,{state:{from:location}});
   }
   const handleDelete = async (campaignId: string) => {
     const response = await axiosInstance.delete(`/campaign/${campaignId}`, { headers: { authorization: `Bearer ${token}` } });
@@ -126,7 +127,7 @@ const Campaigns = () => {
           <div className="px-4 lg:px-6 gap-5 flex flex-col sm:flex-row">
             <h2 className="text-2xl font-semibold tracking-tight">Campaigns</h2>
             {permissions.write && (
-              <Button className="ml-auto" onClick={() => navigator('/user/campaigns/create')}>
+              <Button className="ml-auto" onClick={() => navigator('/user/campaigns/create',{state:{from:location}})}>
                 Create Campaign
               </Button>
             )}

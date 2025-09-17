@@ -4,7 +4,7 @@ import type { RootState } from "../redux/store";
 import { selectTheme, toggleTheme } from "../redux/slices/ThemeSwitcher";
 import { AnimatePresence, motion } from "motion/react";
 import { selectIsMenuOpen, toggleMenu } from "../redux/slices/mobileView";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { logout, selectIsLoggedIn } from "../redux/slices/authSlice";
 import { axiosInstance } from "@/pages/auth/Login";
 const listVariants = {
@@ -44,6 +44,7 @@ const Navbar = (props:NavbarProps) => {
   const token = useSelector<RootState, string | null>((state:RootState) => state.auth.token);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const handleThemeToggle = () => {
     dispatch(toggleTheme());
   };
@@ -55,7 +56,7 @@ const Navbar = (props:NavbarProps) => {
     try {
       let response;
       if (!isLoggedIn) {
-        navigate('/login')
+        navigate('/login',{state:{from:location}})
         return
       } else {
         if (isAdmin) {
@@ -64,7 +65,7 @@ const Navbar = (props:NavbarProps) => {
             headers: { authorization: `Bearer ${token}` }
           })
           if (response.status === 200) {
-            navigate('/login')
+            navigate('/login',{state:{from:location}})
           }
         } else {
           dispatch(logout());
@@ -72,12 +73,12 @@ const Navbar = (props:NavbarProps) => {
             withCredentials: true
           })
           if (response.status === 200) {
-            navigate('/login')
+            navigate('/login',{state:{from:location}})
           }
         }
       }
       if (response.status === 200) {
-        navigate('/login')
+        navigate('/login',{state:{from:location}})
       }
     } catch (error) {
       console.error("Logout failed:", error)

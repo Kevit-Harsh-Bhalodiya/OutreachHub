@@ -5,7 +5,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod"
 import { axiosInstance } from "../auth/Login";
 import { useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 
@@ -31,6 +31,7 @@ const CreateWorkspace = () => {
   });
   const token = useSelector((state: any) => state.auth.token)
   const navigator = useNavigate();
+  const location = useLocation();
   useEffect(() => {
     const fetchWorkspaceData = async () => {
       try {
@@ -67,11 +68,11 @@ const CreateWorkspace = () => {
     if (response.status === 201 || response.status === 200) {
       alert(isEditMode ? "Workspace Updated Successfully" : "Workspace Created Successfully")
       form.reset()
-      navigator("/admin/workspaces")
+      navigator("/admin/workspaces",{state:{from:location}})
     }
     else {
       alert(isEditMode ? "Error updating workspace" : "Error creating workspace")
-      navigator("/admin/workspaces")
+      navigator("/admin/workspaces",{state:{from:location}})
     }
   }
   if (isLoading) {

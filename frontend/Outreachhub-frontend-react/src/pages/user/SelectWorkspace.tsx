@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { axiosInstance } from "../auth/Login";
 import type { AppDispatch, RootState } from "@/redux/store";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { setSelectedWorkspaceId } from "@/redux/slices/workspaceSlice";
 
 const SelectWorkspace = () => {
@@ -16,6 +16,7 @@ const SelectWorkspace = () => {
     (state: any) => state.auth.token,
   );
   const navigator = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch<AppDispatch>();
   useEffect(() => {
     if (userId) {
@@ -53,7 +54,7 @@ const SelectWorkspace = () => {
       selectWorkspace();
 
       alert("Workspace selected successfully!");
-      navigator("/user/dashboard");
+      navigator("/user/dashboard",{state:{from:location}});
     } catch (error) {
       console.error("Error selecting workspace:", error);
       alert("Failed to select workspace. Please try again.");
